@@ -1,0 +1,14 @@
+{
+  "name": "@april83c/snake-web",
+  "module": "src/web.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun src/scripts/webserver.ts",
+    "build": "bun build src/web.ts --outdir ./public/assets/scripts",
+    "dev": "bun run build --watch & bun start"
+  },
+  "dependencies": {
+    "@april83c/snake": "workspace:*",
+    "serve-static-bun": "^0.5.3"
+  }
+}

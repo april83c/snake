@@ -1,0 +1,17 @@
+:root {
+	width: 100vw;
+	height: 100vh;
+}
+
+body { 
+	margin: 0;
+}
+
+body, #container, #mainView {
+	width: 100%;
+	height: 100%;
+}
+
+#mainView {
+	background-color: black;
+}

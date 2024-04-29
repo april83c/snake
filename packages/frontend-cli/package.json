@@ -1,0 +1,11 @@
+{
+  "name": "@april83c/snake-cli",
+  "module": "src/entry.ts",
+  "type": "module",
+  "dependencies": {
+    "@april83c/snake": "workspace:*"
+  },
+  "scripts": {
+    "start": "bun ."
+  }
+}

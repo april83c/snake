@@ -1,0 +1,7 @@
+{
+	"name": "snake-monorepo",
+	"private": "true",
+	"workspaces": [
+		"packages/*"
+	]
+}

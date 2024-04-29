@@ -1,0 +1,6 @@
+{
+  "name": "@april83c/snake",
+  "main": "src/snake.ts",
+  "exports": "./src/snake.ts",
+  "type": "module"
+}
