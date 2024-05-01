@@ -1,8 +1,5 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
-# Compiled TS
-public/assets/scripts/
-
 # Logs
 
 logs
