@@ -9,7 +9,17 @@
 	<link rel="stylesheet" href="/assets/styles/index.css">
 </head>
 <body>
-	<div id="container">
+	<div id="container" class="flex flex-col flex-stretch">
+		<div id="top-bar" class="flex flex-row mobile-flip flex-stretch flex-space-evenly">
+			<div>
+				<span>snake!</span>
+				<small>by april</small>
+			</div>
+			<div>
+				<span>score:</span>
+				<span id="score">0</span>
+			</div>
+		</div>
 		<canvas id="mainView"></canvas>
 	</div>
 </body>

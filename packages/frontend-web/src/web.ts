@@ -1,6 +1,14 @@
 import Snake, { SnakeState, type Vector2 } from '@april83c/snake';
 
+enum WebSnakeState {
+	Stopped = 0,
+	Paused = 1,
+	Running = 2
+}
+
 class WebSnake {
+	state: WebSnakeState;
+
 	game: Snake;
 	inputBuffer: Vector2[];
 	minimumTickLength: number;
@@ -11,7 +19,10 @@ class WebSnake {
 	mainViewTileSize: number;
 	mainViewOffset: Vector2;
 
-	constructor(doc: Document, mainView: HTMLCanvasElement) {
+	scoreElement: HTMLElement;
+
+	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement) {
+		this.state = WebSnakeState.Running;
 		this.game = new Snake({ x: 30, y: 15 }, 5);
 		this.minimumTickLength = 16 * 4;
 		this.lastTickStarted = Date.now() - this.minimumTickLength;
@@ -23,7 +34,6 @@ class WebSnake {
 			throw new Error('Couldn\'t get main view canvas context.');
 		} else {
 			this.mainViewContext = context;
-			context.save();
 		}
 
 		// Observe main view size
@@ -96,29 +106,40 @@ class WebSnake {
 			if (handled) event.preventDefault();
 		})
 
+		this.scoreElement = score;
+
 		this.mainLoop();
 	}
 
 	mainLoop() {
 		const tickStarted = Date.now();
+		switch (this.state) {
+			case WebSnakeState.Stopped:
+				return;
+			case WebSnakeState.Running:
+				// Input and game logic
+				const framesToRun = Math.max(1, (tickStarted - this.lastTickStarted) / this.minimumTickLength);
+				for (let i = 1; i < framesToRun; i++) if (this.game.state == SnakeState.Running) this.game.tick(this.inputBuffer.shift());
 
-		// Input
-		const framesToRun = Math.max(1, (tickStarted - this.lastTickStarted) / this.minimumTickLength);
-		for (let i = 1; i < framesToRun; i++) if (this.game.state == SnakeState.Running) this.game.tick(this.inputBuffer.shift());
+				// Rendering
+				this.render();
 
-		// Rendering
-		this.render();
-	
-		this.lastTickStarted = tickStarted;
-		setTimeout(
-			() => { this.mainLoop() }, 
-			Math.max(0, this.minimumTickLength - (Date.now() - tickStarted))
-		);
+				// Text
+				this.scoreElement.innerText = this.game.snake.length.toString();
+			case WebSnakeState.Paused:
+				// Next frame
+				this.lastTickStarted = tickStarted;
+				setTimeout(
+					() => { this.mainLoop() }, 
+					Math.max(0, this.minimumTickLength - (Date.now() - tickStarted))
+				);
+				break;
+		}
 	}
 
 	render() {
 		// Rendering (main view)
-		this.mainViewContext.restore();
+		this.mainViewContext.clearRect(0, 0, this.mainView.width, this.mainView.height);
 		
 		// Background
 		this.mainViewContext.fillStyle = `#333333`;
@@ -143,8 +164,15 @@ class WebSnake {
 	}
 }
 
-let instance: WebSnake;
-window.onload = () => {
+let webSnake: WebSnake;
+
+function startSnake() {
 	const mainView = document.getElementById('mainView');
-	if (mainView instanceof HTMLCanvasElement) instance = new WebSnake(document, mainView);
-};
+	const score = document.getElementById('score');
+	if (
+		mainView instanceof HTMLCanvasElement
+		&& score instanceof HTMLElement
+	) webSnake = new WebSnake(document, mainView, score);
+}
+
+window.onload = startSnake;
