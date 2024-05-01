@@ -17,6 +17,6 @@ jobs:
         with:
           butlerApiKey: ${{ secrets.ITCH_API_KEY }}
           gameData: ./packages/frontend-web/public
-          itchUsername: ${{ env.ITCH_USERNAME }}
-          itchGameId: ${{ env.ITCH_GAME_ID }}
+          itchUsername: ${{ vars.ITCH_USERNAME }}
+          itchGameId: ${{ vars.ITCH_GAME_ID }}
           buildChannel: html
