@@ -1,0 +1,22 @@
+name: Build and publish @april83c/snake-web to itch.io
+on:
+  push:
+    branches:
+      - main
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - name: Install dependencies
+        run: bun install
+      - name: Build @april83c/snake-web
+        run: cd packages/frontend-web && bun run build && cd ../..
+      - uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{ secrets.ITCH_API_KEY }}
+          gameData: ./packages/frontend-web/public
+          itchUsername: ${{ env.ITCH_USERNAME }}
+          itchGameId: ${{ env.ITCH_GAME_ID }}
+          buildChannel: html
