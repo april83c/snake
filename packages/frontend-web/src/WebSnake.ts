@@ -199,7 +199,7 @@ export default class WebSnake {
 		});
 		
 		// Move snake end and head smoothly
-		const offset = this.previousTickState == SnakeState.Dead ? 0 : Math.min(Math.max(0, sinceLastTick / this.minimumTickLength), 1);
+		const offset = this.previousTickState == SnakeState.DeadByBody || this.game.state == SnakeState.DeadByOutOfBounds ? 0 : Math.min(Math.max(0, sinceLastTick / this.minimumTickLength), 1);
 		const snakeHead = this.game.snake[0];
 
 		// Snake end
@@ -241,7 +241,7 @@ export default class WebSnake {
 				'Delta: ' + delta.toFixed(2),
 				'Since tick: ' + sinceLastTick.toFixed(2),
 				'Offset: ' + offset.toFixed(2),
-				'Now:' + performance.now().toFixed(2)
+				'Now: ' + performance.now().toFixed(2)
 			);
 			['Debug (press = to hide/show)', ...this.debug].forEach((text, index) => {
 				this.mainViewContext.fillText(text, this.mainViewOffset.x, this.mainViewOffset.y + (this.mainViewFontSize * (index + 1)));

@@ -5,7 +5,8 @@ export interface Vector2 {
 
 export enum SnakeState {
 	Running = 0,
-	Dead = 1
+	DeadByBody = 1,
+	DeadByOutOfBounds = 2
 }
 
 export default class Snake {
@@ -58,10 +59,10 @@ export default class Snake {
 
 		if ((this.snake.findIndex(snakePiece => snakePiece.x == newPosition.x && snakePiece.y == newPosition.y) != -1)) { // Check if snake colliding with itself
 			this.snake.unshift(newPosition);
-			this.state = SnakeState.Dead;
+			this.state = SnakeState.DeadByBody;
 			return;
 		} else if ((newPosition.x >= this.boardSize.x || newPosition.x < 0 || newPosition.y >= this.boardSize.y || newPosition.y < 0) ) { // Check if we are out of bounds
-			this.state = SnakeState.Dead;
+			this.state = SnakeState.DeadByOutOfBounds;
 			return;
 		} else {
 			this.snake.unshift(newPosition);
