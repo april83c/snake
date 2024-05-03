@@ -9,8 +9,19 @@ export enum SnakeState {
 	DeadByOutOfBounds = 2
 }
 
+export type SnakeStateCallback = (snakeState: SnakeState, snake: Snake) => any | undefined;
+
 export default class Snake {
-	state: SnakeState;
+	private _state: SnakeState;
+	stateCallback: SnakeStateCallback;
+
+	public get state() {
+		return this._state
+	}
+	public set state(newState) {
+		this._state = newState;
+		if (this.stateCallback != undefined) this.stateCallback(newState, this);
+	}
 
 	boardSize: Vector2;
 	apples: Vector2[];
@@ -18,8 +29,10 @@ export default class Snake {
 	snake: Vector2[];
 	snakeVelocity: Vector2;
 	
-	constructor(boardSize: Vector2, apples: number = 1) {
-		this.state = SnakeState.Running;
+	// Careful: stateCallback is not called when the state is initially set to SnakeState.Running, so it shouldn't be used like a "on ready"! Instead, the constructor being finished should be used as a "on ready".
+	constructor(boardSize: Vector2, apples: number = 1, stateCallback: SnakeStateCallback) {
+		this._state = SnakeState.Running;
+		this.stateCallback = stateCallback;
 		this.boardSize = boardSize;
 
 		this.snake = [{

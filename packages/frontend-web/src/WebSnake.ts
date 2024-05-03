@@ -1,4 +1,4 @@
-import Snake, { SnakeState, type Vector2 } from '@april83c/snake';
+import Snake, { SnakeState, type SnakeStateCallback, type Vector2 } from '@april83c/snake';
 
 export enum WebSnakeState {
 	Stopped = 0,
@@ -29,12 +29,12 @@ export default class WebSnake {
 
 	scoreElement: HTMLElement;
 
-	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement) {
+	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement, stateCallback: SnakeStateCallback) {
 		this.state = WebSnakeState.Running;
 		this.debugEnabled = false;
 		this.debug = [];
 
-		this.game = new Snake({ x: 30, y: 15 }, 5);
+		this.game = new Snake({ x: 30, y: 15 }, 5, stateCallback);
 		this.previousTickSnakeEnd = this.game.snake[this.game.snake.length - 1];
 		this.previousTickState = this.game.state;
 
@@ -199,7 +199,7 @@ export default class WebSnake {
 		});
 		
 		// Move snake end and head smoothly
-		const offset = this.previousTickState == SnakeState.DeadByBody || this.game.state == SnakeState.DeadByOutOfBounds ? 0 : Math.min(Math.max(0, sinceLastTick / this.minimumTickLength), 1);
+		let offset = this.previousTickState == SnakeState.DeadByBody || this.game.state == SnakeState.DeadByOutOfBounds ? 0 : Math.min(Math.max(0, sinceLastTick / this.minimumTickLength), 1);
 		const snakeHead = this.game.snake[0];
 
 		// Snake end
@@ -224,13 +224,9 @@ export default class WebSnake {
 		this.mainViewContext.fillStyle = 'green';
 
 		const headOffset: Vector2 = {
-			x: this.game.snakeVelocity.x * offset,
-			y: this.game.snakeVelocity.y * offset
+			x: this.game.snakeVelocity.x * offset - this.game.snakeVelocity.x,
+			y: this.game.snakeVelocity.y * offset - this.game.snakeVelocity.y
 		}
-		if (headOffset.x > 0) headOffset.x -= 1;
-		else if (headOffset.x < 0) headOffset.x += 1;
-		else if (headOffset.y > 0) headOffset.y -= 1;
-		else if (headOffset.y < 0) headOffset.y += 1;
 		
 		this.mainViewContext.fillRect(this.mainViewOffset.x + (snakeHead.x + headOffset.x) * this.mainViewTileSize, this.mainViewOffset.y + (snakeHead.y + headOffset.y) * this.mainViewTileSize, this.mainViewTileSize, this.mainViewTileSize);
 

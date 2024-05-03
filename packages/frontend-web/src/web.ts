@@ -1,3 +1,4 @@
+import { SnakeState } from '@april83c/snake';
 import WebSnake, { WebSnakeState } from './WebSnake';
 
 function notNull<desired>(v: desired | null) {
@@ -8,6 +9,7 @@ function notNull<desired>(v: desired | null) {
 // Main code
 
 let webSnake: WebSnake;
+let router: Router;
 
 enum Page {
 	Loading = 0,
@@ -44,7 +46,7 @@ class Router {
 }
 
 function main() {
-	const router = new Router();
+	router = new Router();
 	
 	// Buttons
 	const startButton = document.querySelector('#page-setup #start');
@@ -52,6 +54,12 @@ function main() {
 	startButton.addEventListener('click', () => {
 		router.go(Page.Game);
 		startSnake();
+	});
+
+	const playAgainButton = document.querySelector('#page-gameover #play-again');
+	if (!(playAgainButton instanceof HTMLButtonElement)) throw new Error('Error getting elements for game over');
+	playAgainButton.addEventListener('click', () => {
+		router.go(Page.Setup);
 	});
 
 	router.go(Page.Setup);
@@ -65,7 +73,11 @@ function startSnake() {
 		&& score instanceof HTMLElement
 	)) throw new Error('Error getting elements for WebSnake');
 	
-	webSnake = new WebSnake(document, mainView, score)
+	webSnake = new WebSnake(document, mainView, score, (newState) => {
+		if (newState != SnakeState.Running) {
+			router.go(Page.GameOver);
+		}
+	});
 }
 
 window.onload = main;
