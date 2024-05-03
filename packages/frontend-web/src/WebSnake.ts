@@ -152,11 +152,14 @@ export default class WebSnake {
 			this.mainViewContext.fillRect(this.mainViewOffset.x + apple.x * this.mainViewTileSize, this.mainViewOffset.y + apple.y * this.mainViewTileSize, this.mainViewTileSize, this.mainViewTileSize);
 		});
 
-		this.game.snake.forEach((snakePiece, index) => {
-			if (index == 0) this.mainViewContext.fillStyle = 'green';
-			else this.mainViewContext.fillStyle = 'darkGreen';
+		this.game.snake.slice(1).forEach((snakePiece, index) => {
+			this.mainViewContext.fillStyle = 'darkGreen';
 
 			this.mainViewContext.fillRect(this.mainViewOffset.x + snakePiece.x * this.mainViewTileSize, this.mainViewOffset.y + snakePiece.y * this.mainViewTileSize, this.mainViewTileSize, this.mainViewTileSize);
 		});
+
+		const snakeHead = this.game.snake[0];
+		this.mainViewContext.fillStyle = 'green';
+		this.mainViewContext.fillRect(this.mainViewOffset.x + snakeHead.x * this.mainViewTileSize, this.mainViewOffset.y + snakeHead.y * this.mainViewTileSize, this.mainViewTileSize, this.mainViewTileSize);
 	}
 }
