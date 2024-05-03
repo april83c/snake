@@ -132,6 +132,6 @@ button {
 }
 
 #page-game #mainView {
-	background-color: black;
+	background-color: var(--bg-1);
 	height: 100%;
 }

@@ -1,7 +1,11 @@
 {
-	"name": "snake-monorepo",
-	"private": "true",
-	"workspaces": [
-		"packages/*"
-	]
+  "name": "snake-monorepo",
+  "private": "true",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@types/bun": "^1.1.1",
+    "typescript": "^5.4.5"
+  }
 }
