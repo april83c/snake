@@ -237,7 +237,12 @@ export default class WebSnake {
 		// Performance stats
 		this.mainViewContext.fillStyle = 'white';
 		if (this.debugEnabled) {
-			this.debug.push('Delta: ' + delta.toFixed(2), 'Since tick: ' + sinceLastTick.toFixed(2), 'Offset: ' + offset.toFixed(2));
+			this.debug.push(
+				'Delta: ' + delta.toFixed(2),
+				'Since tick: ' + sinceLastTick.toFixed(2),
+				'Offset: ' + offset.toFixed(2),
+				'Now:' + performance.now().toFixed(2)
+			);
 			['Debug (press = to hide/show)', ...this.debug].forEach((text, index) => {
 				this.mainViewContext.fillText(text, this.mainViewOffset.x, this.mainViewOffset.y + (this.mainViewFontSize * (index + 1)));
 			});
