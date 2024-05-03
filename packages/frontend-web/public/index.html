@@ -3,17 +3,25 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Snake</title>
+	<title>snake!</title>
 
 	<script src="assets/scripts/web.js"></script>
 	<link rel="stylesheet" href="assets/styles/index.css">
 </head>
 <body>
-	<div id="container" class="flex flex-col flex-stretch">
+	<noscript>snake! requires JavaScript.</noscript>
+	<div id="page-loading" class="flex flex-row flex-align-center flex-justify-center">
+		🐍 snake! is loading...
+	</div>
+
+	<!-- Pages -->
+	<div id="page-game" class="flex flex-col flex-stretch" style="display: none">
 		<div id="top-bar" class="flex flex-row mobile-flip flex-stretch flex-space-evenly">
 			<div>
-				<span>snake!</span>
-				<small>by april</small>
+				<span>
+					🐍 snake!
+					<small>by april</small>
+				</span>
 			</div>
 			<div>
 				<span>score:</span>
@@ -21,6 +29,19 @@
 			</div>
 		</div>
 		<canvas id="mainView"></canvas>
+	</div>
+
+	<div id="page-setup" class="flex flex-col flex-align-center flex-justify-center" style="display: none">
+		<div class="card">
+			<h1 style="text-align: center">🐍 snake! <small>by april</small></h1>
+			<button id="start" class="big-button">
+				Start
+			</button>
+		</div>
+	</div>
+
+	<div id="page-gameover" style="display: none">
+		Game Over
 	</div>
 </body>
 </html>

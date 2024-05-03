@@ -29,6 +29,14 @@
 	justify-content: space-evenly;
 }
 
+.flex-align-center {
+	align-items: center;
+}
+
+.flex-justify-center {
+	justify-content: center;
+}
+
 .item-grow {
 	flex-grow: 1;
 }
@@ -37,33 +45,83 @@
 :root {
 	width: 100vw;
 	height: 100vh;
+
+	--fg-1: #3c1762;
+	--fg-2: #511f73;
+	--fg-3: #71329f;
+	--fg-gradient: linear-gradient(0deg, var(--fg-3) 0%, var(--fg-2) 100%);
+	--bg-1: #333333;
+	--bg-2: #505050;
+	--radius: 0;
+	--padding: 0.33em;
 }
 
 body { 
 	margin: 0;
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-body, #container {
+body, body>div {
 	width: 100%;
 	height: 100%;
+
+	color: white;
+	background-color: var(--bg-1);
 }
 
-#top-bar {
+.card {
+	max-width: 600px;
+	width: 100%;
+	padding: calc(var(--padding) * 2);
+	margin: 0.5em;
+
+	border-radius: var(--radius);
+	color: white;
+	background: var(--bg-2);
+}
+
+.card > *:first-child {
+	margin-top: 0;
+}
+
+.card > *:last-child {
+	margin-bottom: 0;
+}
+
+button {
+	padding: var(--padding);
+	border-radius: var(--radius);
+	border-style: solid;
+	border-width: var(--padding);
+	border-color: var(--fg-1);
+
+	background: var(--fg-gradient);
+	color: white;
+
+	cursor: pointer;
+}
+
+.big-button {
+	width: 100%;
+	font-size: 1.3em;
+}
+
+#page-game #top-bar {
 	min-height: max-content;
-	padding: 0.33em;
-	gap: 0.33em;
-	background: #3c1762;
+	padding: var(--padding);
+	gap: var(--padding);
+	background: var(--fg-1);
 	
 	/*border-color: #3d1762;
 	border-style: inset;
 	border-width: 0.33em;*/
 }
 
-#top-bar div {
+#page-game #top-bar div {
 	height: calc(100% - 2ch);
 	width: calc(100% - 2ch);
 	padding: 1ch;
-	background: linear-gradient(0deg, #71329f 0%, #511f73 100%);
+	background: var(--fg-gradient);
 
 	color: white;
 	
@@ -73,7 +131,7 @@ body, #container {
 	gap: 1ch;
 }
 
-#mainView {
+#page-game #mainView {
 	background-color: black;
 	height: 100%;
 }
