@@ -9,7 +9,7 @@ export enum SnakeState {
 	DeadByOutOfBounds = 2
 }
 
-export type SnakeStateCallback = (snakeState: SnakeState, snake: Snake) => any | undefined;
+export type SnakeStateCallback = ((snakeState: SnakeState, snake: Snake) => any) | undefined;
 
 export default class Snake {
 	private _state: SnakeState;
@@ -30,7 +30,7 @@ export default class Snake {
 	snakeVelocity: Vector2;
 	
 	// Careful: stateCallback is not called when the state is initially set to SnakeState.Running, so it shouldn't be used like a "on ready"! Instead, the constructor being finished should be used as a "on ready".
-	constructor(boardSize: Vector2, apples: number = 1, stateCallback: SnakeStateCallback) {
+	constructor(boardSize: Vector2, apples: number = 1, stateCallback: SnakeStateCallback = undefined) {
 		// input validation
 		if (isNaN(apples)) throw new Error('Apple count is NaN');
 		if (boardSize.x < 1 || boardSize.y < 1) throw new Error('Board size should be at least 1 in each axis');
