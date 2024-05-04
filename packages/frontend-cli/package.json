@@ -6,6 +6,8 @@
     "@april83c/snake": "workspace:*"
   },
   "scripts": {
-    "start": "bun ."
+    "start": "bun .",
+    "check": "tsc --noEmit",
+    "build": "bun run check && bun build --minify --sourcemap --outfile dist/snake --compile ."
   }
 }
