@@ -29,16 +29,16 @@ export default class WebSnake {
 
 	scoreElement: HTMLElement;
 
-	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement, stateCallback: SnakeStateCallback) {
+	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement, boardSize: Vector2, apples: number, tickLength: number, stateCallback: SnakeStateCallback) {
 		this.state = WebSnakeState.Running;
 		this.debugEnabled = false;
 		this.debug = [];
 
-		this.game = new Snake({ x: 30, y: 15 }, 5, stateCallback);
+		this.game = new Snake(boardSize, apples, stateCallback);
 		this.previousTickSnakeEnd = this.game.snake[this.game.snake.length - 1];
 		this.previousTickState = this.game.state;
 
-		this.minimumTickLength = 16 * 4;
+		this.minimumTickLength = tickLength;
 		this.lastTickStarted = performance.now() - this.minimumTickLength;
 
 		this.lastFrameTime = 0;
@@ -157,14 +157,13 @@ export default class WebSnake {
 				for (let i = 1; i < ticksToRun; i++) if (this.previousTickState == SnakeState.Running) {
 					this.previousTickState = this.game.state;
 					this.previousTickSnakeEnd = this.game.snake[this.game.snake.length - 1];
-					this.game.tick(this.inputBuffer.shift());
-				}
 
-				if (ticksToRun >= 1) {
-					this.lastTickStarted = performance.now()
+					this.lastTickStarted = performance.now();
+					this.game.tick(this.inputBuffer.shift());
+					
 					// Text
 					this.scoreElement.innerText = this.game.snake.length.toString();
-				};
+				}
 
 				// Rendering
 				// We can't pass the same sinceLastTick here as for ticksToRun because it needs to be *after* we ticked

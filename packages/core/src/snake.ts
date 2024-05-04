@@ -31,9 +31,14 @@ export default class Snake {
 	
 	// Careful: stateCallback is not called when the state is initially set to SnakeState.Running, so it shouldn't be used like a "on ready"! Instead, the constructor being finished should be used as a "on ready".
 	constructor(boardSize: Vector2, apples: number = 1, stateCallback: SnakeStateCallback) {
+		// input validation
+		if (isNaN(apples)) throw new Error('Apple count is NaN');
+		if (boardSize.x < 1 || boardSize.y < 1) throw new Error('Board size should be at least 1 in each axis');
+		// Max apple count is already validated by getValidApplePosition(), see below
+
 		this._state = SnakeState.Running;
 		this.stateCallback = stateCallback;
-		this.boardSize = boardSize;
+		this.boardSize = { x: Math.round(boardSize.x), y: Math.round(boardSize.y) };
 
 		this.snake = [{
 			x: Math.floor(this.boardSize.x / 2),
@@ -43,7 +48,9 @@ export default class Snake {
 
 		this.apples = [];
 		for (let i = 0; i < apples; i++) {
-			this.apples.push(this.getValidApplePosition());
+			const apple = this.getValidApplePosition();
+			if (apple === false) throw new Error('Too many apples for this board size!');
+			this.apples.push(apple);
 		}
 	}
 
@@ -85,20 +92,24 @@ export default class Snake {
 		const appleIndex = this.apples.findIndex(apple => apple.x == this.snake[0].x && apple.y == this.snake[0].y);
 		if (appleIndex != -1) {
 			this.apples.splice(appleIndex, 1);
-			this.apples.push(this.getValidApplePosition());
+			const apple = this.getValidApplePosition()
+			if (apple !== false) this.apples.push(apple);
 		} else {
 			this.snake.pop();
 		}
 	}
 
 	private getValidApplePosition() {
-		let position: Vector2 = this.snake[0];
-		while (this.snake.findIndex(piece => piece.x == position.x && piece.y == position.y) != -1 || this.apples.findIndex(apple => apple.x == position.x && apple.y == position.y) != -1) {
+		if (((this.boardSize.x * this.boardSize.y) - this.apples.length - this.snake.length) < 1) return false;
+
+		// FIXME: Should we instead construct an array of every possible apple position and select randomly from its length? Or would that be worse on performance?
+		let position: Vector2;
+		do {
 			position = {
 				x: Math.floor(Math.random() * this.boardSize.x),
 				y: Math.floor(Math.random() * this.boardSize.y)
 			}
-		}
+		} while (this.snake.findIndex(piece => piece.x == position.x && piece.y == position.y) != -1 || this.apples.findIndex(apple => apple.x == position.x && apple.y == position.y) != -1)
 		return position;
 	}
 }

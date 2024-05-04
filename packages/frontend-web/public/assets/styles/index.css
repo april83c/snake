@@ -11,6 +11,10 @@
 	flex-direction: row;
 }
 
+.flex-gap {
+	gap: var(--padding);
+}
+
 @media (max-width: 25rem) {
 	.flex-col.mobile-flip {
 		flex-direction: row;
@@ -86,6 +90,10 @@ body, body>div {
 
 .card > *:last-child {
 	margin-bottom: 0;
+}
+
+input {
+	padding: var(--padding);
 }
 
 button {

@@ -1,4 +1,4 @@
-import { SnakeState } from '@april83c/snake';
+import { SnakeState, type Vector2 } from '@april83c/snake';
 import WebSnake, { WebSnakeState } from './WebSnake';
 
 function notNull<desired>(v: desired | null) {
@@ -48,14 +48,26 @@ class Router {
 function main() {
 	router = new Router();
 	
-	// Buttons
+	// Get elements
+	// Setup page
+	const boardSizeXInput = document.querySelector('#page-setup #board-size-x');
+	const boardSizeYInput = document.querySelector('#page-setup #board-size-y');
+	const applesInput = document.querySelector('#page-setup #apples');
+	const tickLengthInput = document.querySelector('#page-setup #tick-length');
 	const startButton = document.querySelector('#page-setup #start');
-	if (!(startButton instanceof HTMLButtonElement)) throw new Error('Error getting elements for setup');
+	if (
+		!(boardSizeXInput instanceof HTMLInputElement)
+		|| !(boardSizeYInput instanceof HTMLInputElement)
+		|| !(applesInput instanceof HTMLInputElement)
+		|| !(tickLengthInput instanceof HTMLInputElement)
+		|| !(startButton instanceof HTMLButtonElement)
+	) throw new Error('Error getting elements for setup');
 	startButton.addEventListener('click', () => {
 		router.go(Page.Game);
-		startSnake();
+		startSnake({ x: boardSizeXInput.valueAsNumber, y: boardSizeYInput.valueAsNumber }, applesInput.valueAsNumber, tickLengthInput.valueAsNumber);
 	});
 
+	// Game over page
 	const playAgainButton = document.querySelector('#page-gameover #play-again');
 	if (!(playAgainButton instanceof HTMLButtonElement)) throw new Error('Error getting elements for game over');
 	playAgainButton.addEventListener('click', () => {
@@ -65,16 +77,22 @@ function main() {
 	router.go(Page.Setup);
 }
 
-function startSnake() {
+function startSnake(boardSize: Vector2, apples: number, tickLength: number) {
 	const mainView = document.querySelector('#page-game #mainView');
 	const score = document.querySelector('#page-game #score');
+	const gameOverScore = document.querySelector('#page-gameover #score');
 	if (!(
 		mainView instanceof HTMLCanvasElement
 		&& score instanceof HTMLElement
+		&& gameOverScore instanceof HTMLSpanElement
 	)) throw new Error('Error getting elements for WebSnake');
 	
-	webSnake = new WebSnake(document, mainView, score, (newState) => {
+	if (webSnake != undefined) {
+		webSnake.state = WebSnakeState.Stopped;
+	}
+	webSnake = new WebSnake(document, mainView, score, boardSize, apples, tickLength, (newState) => {
 		if (newState != SnakeState.Running) {
+			gameOverScore.innerText = webSnake.game.snake.length.toString();
 			router.go(Page.GameOver);
 		}
 	});
