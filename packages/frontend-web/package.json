@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bun src/scripts/webserver.ts",
     "check": "tsc --noEmit",
-    "build": "bun run check && bun build src/web.ts --outdir ./public/assets/scripts",
+    "build": "bun run check && bun build src/web.ts --minify --sourcemap=external --outdir ./public/assets/scripts",
     "dev": "bun run build --watch & bun start"
   },
   "dependencies": {
