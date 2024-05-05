@@ -1,4 +1,4 @@
-import { SnakeState, type Vector2 } from '@april83c/snake';
+import Snake, { SnakeState, type Vector2 } from '@april83c/snake';
 import WebSnake, { WebSnakeState } from './WebSnake';
 
 function notNull<desired>(v: desired | null) {
@@ -54,48 +54,57 @@ function main() {
 	const boardSizeYInput = document.querySelector('#page-setup #board-size-y');
 	const applesInput = document.querySelector('#page-setup #apples');
 	const tickLengthInput = document.querySelector('#page-setup #tick-length');
+	const smoothingEnabledInput = document.querySelector('#page-setup #smoothing-enabled');
 	const startButton = document.querySelector('#page-setup #start');
-	if (
-		!(boardSizeXInput instanceof HTMLInputElement)
-		|| !(boardSizeYInput instanceof HTMLInputElement)
-		|| !(applesInput instanceof HTMLInputElement)
-		|| !(tickLengthInput instanceof HTMLInputElement)
-		|| !(startButton instanceof HTMLButtonElement)
-	) throw new Error('Error getting elements for setup');
+	if (!(
+		boardSizeXInput instanceof HTMLInputElement
+		&& boardSizeYInput instanceof HTMLInputElement
+		&& applesInput instanceof HTMLInputElement
+		&& tickLengthInput instanceof HTMLInputElement
+		&& smoothingEnabledInput instanceof HTMLInputElement
+		&& startButton instanceof HTMLButtonElement
+	)) throw new Error('Error getting elements for setup');
 	startButton.addEventListener('click', () => {
 		router.go(Page.Game);
-		startSnake({ x: boardSizeXInput.valueAsNumber, y: boardSizeYInput.valueAsNumber }, applesInput.valueAsNumber, tickLengthInput.valueAsNumber);
+		startSnake({ x: boardSizeXInput.valueAsNumber, y: boardSizeYInput.valueAsNumber }, applesInput.valueAsNumber, tickLengthInput.valueAsNumber, smoothingEnabledInput.checked);
 	});
 
 	// Game over page
 	const playAgainButton = document.querySelector('#page-gameover #play-again');
 	if (!(playAgainButton instanceof HTMLButtonElement)) throw new Error('Error getting elements for game over');
 	playAgainButton.addEventListener('click', () => {
+		webSnake.state = WebSnakeState.Stopped;
 		router.go(Page.Setup);
 	});
 
 	router.go(Page.Setup);
 }
 
-function startSnake(boardSize: Vector2, apples: number, tickLength: number) {
+function startSnake(boardSize: Vector2, apples: number, tickLength: number, smoothingEnabled: boolean) {
 	const mainView = document.querySelector('#page-game #mainView');
 	const score = document.querySelector('#page-game #score');
 	const gameOverScore = document.querySelector('#page-gameover #score');
+	const gameOverMainView = document.querySelector('#page-gameover #mainView');
+
 	if (!(
 		mainView instanceof HTMLCanvasElement
 		&& score instanceof HTMLElement
 		&& gameOverScore instanceof HTMLSpanElement
+		&& gameOverMainView instanceof HTMLCanvasElement
 	)) throw new Error('Error getting elements for WebSnake');
 	
 	if (webSnake != undefined) {
 		webSnake.state = WebSnakeState.Stopped;
 	}
-	webSnake = new WebSnake(document, mainView, score, boardSize, apples, tickLength, (newState) => {
+	webSnake = new WebSnake(document, mainView, score, tickLength, smoothingEnabled, new Snake(boardSize, apples, (newState, snake) => {
 		if (newState != SnakeState.Running) {
-			gameOverScore.innerText = webSnake.game.snake.length.toString();
+			webSnake.state = WebSnakeState.Stopped;
+			gameOverScore.innerText = snake.snake.length.toString();
+			gameOverMainView.style.aspectRatio = `${boardSize.x} / ${boardSize.y}`;
+			webSnake = new WebSnake(document, gameOverMainView, score, tickLength, false, snake);
 			router.go(Page.GameOver);
 		}
-	});
+	}));
 }
 
 window.onload = main;

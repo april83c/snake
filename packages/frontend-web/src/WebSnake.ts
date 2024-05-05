@@ -10,6 +10,7 @@ export default class WebSnake {
 	state: WebSnakeState;
 	debugEnabled: boolean;
 	debug: string[];
+	smoothingEnabled: boolean;
 
 	game: Snake;
 	previousTickSnakeEnd: Vector2 | null; // for smooth snake
@@ -29,12 +30,13 @@ export default class WebSnake {
 
 	scoreElement: HTMLElement;
 
-	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement, boardSize: Vector2, apples: number, tickLength: number, stateCallback: SnakeStateCallback) {
+	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement, tickLength: number, smoothingEnabled: boolean, snake: Snake) {
 		this.state = WebSnakeState.Running;
 		this.debugEnabled = false;
 		this.debug = [];
+		this.smoothingEnabled = smoothingEnabled;
 
-		this.game = new Snake(boardSize, apples, stateCallback);
+		this.game = snake;
 		this.previousTickSnakeEnd = this.game.snake[this.game.snake.length - 1];
 		this.previousTickState = this.game.state;
 
@@ -154,7 +156,7 @@ export default class WebSnake {
 			case WebSnakeState.Running:
 				// Input and game logic
 				const ticksToRun = (performance.now() - this.lastTickStarted) / this.minimumTickLength;
-				for (let i = 1; i < ticksToRun; i++) if (this.previousTickState == SnakeState.Running) {
+				for (let i = 1; i < ticksToRun; i++) {
 					this.previousTickState = this.game.state;
 					this.previousTickSnakeEnd = this.game.snake[this.game.snake.length - 1];
 
@@ -198,7 +200,7 @@ export default class WebSnake {
 		});
 		
 		// Move snake end and head smoothly
-		let offset = this.previousTickState == SnakeState.DeadByBody || this.game.state == SnakeState.DeadByOutOfBounds ? 0 : Math.min(Math.max(0, sinceLastTick / this.minimumTickLength), 1);
+		let offset = this.smoothingEnabled ? (this.previousTickState == SnakeState.DeadByBody || this.game.state == SnakeState.DeadByOutOfBounds ? 0 : Math.min(Math.max(0, sinceLastTick / this.minimumTickLength), 1)) : 1;
 		const snakeHead = this.game.snake[0];
 
 		// Snake end

@@ -45,6 +45,10 @@
 	flex-grow: 1;
 }
 
+.item-no-shrink {
+	flex-shrink: 0;
+}
+
 /* actual css */
 :root {
 	width: 100vw;
@@ -57,7 +61,7 @@
 	--bg-1: #333333;
 	--bg-2: #505050;
 	--radius: 0;
-	--padding: 0.33em;
+	--padding: 0.5em;
 }
 
 body { 
@@ -96,6 +100,10 @@ input {
 	padding: var(--padding);
 }
 
+input[type=number] {
+	text-align: center;
+}
+
 button {
 	padding: var(--padding);
 	border-radius: var(--radius);
@@ -128,7 +136,7 @@ button {
 #page-game #top-bar div {
 	height: calc(100% - 2ch);
 	width: calc(100% - 2ch);
-	padding: 1ch;
+	padding: var(--padding);
 	background: var(--fg-gradient);
 
 	color: white;
@@ -142,4 +150,13 @@ button {
 #page-game #mainView {
 	background-color: var(--bg-1);
 	height: 100%;
+	image-rendering: pixelated;
+}
+
+#page-gameover #mainView {
+	background-color: var(--bg-1);
+	width: calc(100% - var(--padding) * 2);
+	height: auto;
+	padding: var(--padding);
+	image-rendering: pixelated;
 }
