@@ -1,4 +1,6 @@
 import Snake, { SnakeState, type SnakeStateCallback, type Vector2 } from '@april83c/snake';
+import type { AppleSkin, FieldSkin, SnakeSkin } from './Skin';
+import { SnakePiece, SnakeSkinPrototype, AppleSkinPrototype } from './Skin';
 
 export enum WebSnakeState {
 	Stopped = 0,
@@ -10,7 +12,13 @@ export default class WebSnake {
 	state: WebSnakeState;
 	debugEnabled: boolean;
 	debug: string[];
+
 	smoothingEnabled: boolean;
+	skins: {
+		snake: SnakeSkin;
+		apple: AppleSkin;
+		field: FieldSkin;
+	}
 
 	game: Snake;
 	previousTickSnakeEnd: Vector2 | null; // for smooth snake
@@ -34,7 +42,14 @@ export default class WebSnake {
 		this.state = WebSnakeState.Running;
 		this.debugEnabled = false;
 		this.debug = [];
+
 		this.smoothingEnabled = smoothingEnabled;
+		this.skins = {
+			snake: new SnakeSkinPrototype(),
+			apple: new AppleSkinPrototype(),
+			// @ts-expect-error // TODO
+			field: null
+		}
 
 		this.game = snake;
 		this.previousTickSnakeEnd = this.game.snake[this.game.snake.length - 1];
@@ -188,15 +203,25 @@ export default class WebSnake {
 
 		// Elements
 		// Apples
-		this.mainViewContext.fillStyle = 'red';
 		this.game.apples.forEach(apple => {
-			this.mainViewContext.fillRect(this.mainViewOffset.x + apple.x * this.mainViewTileSize, this.mainViewOffset.y + apple.y * this.mainViewTileSize, this.mainViewTileSize, this.mainViewTileSize);
+			this.skins.apple.drawApple(this.mainViewContext, this.mainViewTileSize,
+				{
+					x: this.mainViewOffset.x + apple.x * this.mainViewTileSize,
+					y: this.mainViewOffset.y + apple.y * this.mainViewTileSize
+				}
+			);
 		});
 
 		// Snake body
-		this.mainViewContext.fillStyle = 'darkGreen';
 		this.game.snake.slice(1).forEach((snakePiece, index) => {
-			this.mainViewContext.fillRect(this.mainViewOffset.x + snakePiece.x * this.mainViewTileSize, this.mainViewOffset.y + snakePiece.y * this.mainViewTileSize, this.mainViewTileSize, this.mainViewTileSize);
+			this.skins.snake.drawPiece(this.mainViewContext, this.mainViewTileSize,
+				{
+					x: this.mainViewOffset.x + snakePiece.x * this.mainViewTileSize,
+					y: this.mainViewOffset.y + snakePiece.y * this.mainViewTileSize
+				},
+				{ x: 0, y: 0 },
+				SnakePiece.Body
+			);
 		});
 		
 		// Move snake end and head smoothly
@@ -208,28 +233,37 @@ export default class WebSnake {
 			const endVelocity: Vector2 = {
 				x: this.previousTickSnakeEnd.x - this.game.snake[this.game.snake.length - 1].x,
 				y: this.previousTickSnakeEnd.y - this.game.snake[this.game.snake.length - 1].y,
-			}
+			};
 
 			const endOffset: Vector2 = {
 				x: endVelocity.x * (offset * -1),
 				y: endVelocity.y * (offset * -1)
 			};
 
-			// Fill style already set from snake body
-			// this.mainViewContext.fillStyle = 'darkGreen';
-			// this.mainViewContext.fillStyle = 'purple';
-			this.mainViewContext.fillRect(this.mainViewOffset.x + (this.previousTickSnakeEnd.x + endOffset.x) * this.mainViewTileSize, this.mainViewOffset.y + (this.previousTickSnakeEnd.y + endOffset.y) * this.mainViewTileSize, this.mainViewTileSize, this.mainViewTileSize);
+			this.skins.snake.drawPiece(this.mainViewContext, this.mainViewTileSize,
+				{
+					x: this.mainViewOffset.x + (this.previousTickSnakeEnd.x + endOffset.x) * this.mainViewTileSize,
+					y: this.mainViewOffset.y + (this.previousTickSnakeEnd.y + endOffset.y) * this.mainViewTileSize
+				},
+				endVelocity,
+				SnakePiece.End
+			);
 		}
 
 		// Snake head
-		this.mainViewContext.fillStyle = 'green';
-
 		const headOffset: Vector2 = {
 			x: this.game.snakeVelocity.x * offset - this.game.snakeVelocity.x,
 			y: this.game.snakeVelocity.y * offset - this.game.snakeVelocity.y
 		}
-		
-		this.mainViewContext.fillRect(this.mainViewOffset.x + (snakeHead.x + headOffset.x) * this.mainViewTileSize, this.mainViewOffset.y + (snakeHead.y + headOffset.y) * this.mainViewTileSize, this.mainViewTileSize, this.mainViewTileSize);
+
+		this.skins.snake.drawPiece(this.mainViewContext, this.mainViewTileSize,
+			{
+				x: this.mainViewOffset.x + (snakeHead.x + headOffset.x) * this.mainViewTileSize,
+				y: this.mainViewOffset.y + (snakeHead.y + headOffset.y) * this.mainViewTileSize
+			},
+			{ x: 0, y: 0 },
+			SnakePiece.Head
+		);
 
 		// Performance stats
 		this.mainViewContext.fillStyle = 'white';
