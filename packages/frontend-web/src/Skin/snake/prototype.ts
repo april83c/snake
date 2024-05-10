@@ -1,14 +1,14 @@
 import type { Vector2 } from '@april83c/snake';
-import type { SnakeSkin } from '../types';
-import { SnakePiece } from '../types';
+import { SnakeSkin, SnakePiece } from '../types';
 
-export class SnakeSkinPrototype implements SnakeSkin {
+export class SnakeSkinPrototype extends SnakeSkin {
 	name = 'Prototype';
 	description = 'The original.';
 	creator = 'April';
 
-	constructor() {
-		// Load assets here?
+	constructor(readyCallback?: () => any) {
+		super(readyCallback);
+		if (this.readyCallback != undefined) this.readyCallback();
 	}
 
 	drawPiece(context: CanvasRenderingContext2D, tileSize: number, position: Vector2, direction: Vector2, piece: SnakePiece) {

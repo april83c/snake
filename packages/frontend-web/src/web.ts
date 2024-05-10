@@ -1,5 +1,7 @@
 import Snake, { SnakeState, type Vector2 } from '@april83c/snake';
-import WebSnake, { WebSnakeState } from './WebSnake';
+import WebSnake, { WebSnakeState, type Locker } from './WebSnake';
+import { AppleSkinCheezburger, FieldSkin, SnakeSkin, SnakeSkinPrototype, type AppleSkin } from './Skin';
+import { SnakeSkinNeocat } from './Skin/snake/neocat';
 
 function notNull<desired>(v: desired | null) {
 	if (v == null) throw new Error('Null');
@@ -92,19 +94,43 @@ function startSnake(boardSize: Vector2, apples: number, tickLength: number, smoo
 		&& gameOverScore instanceof HTMLSpanElement
 		&& gameOverMainView instanceof HTMLCanvasElement
 	)) throw new Error('Error getting elements for WebSnake');
-	
-	if (webSnake != undefined) {
-		webSnake.state = WebSnakeState.Stopped;
-	}
-	webSnake = new WebSnake(document, mainView, score, tickLength, smoothingEnabled, new Snake(boardSize, apples, (newState, snake) => {
-		if (newState != SnakeState.Running) {
-			webSnake.state = WebSnakeState.Stopped;
-			gameOverScore.innerText = snake.snake.length.toString();
-			gameOverMainView.style.aspectRatio = `${boardSize.x} / ${boardSize.y}`;
-			webSnake = new WebSnake(document, gameOverMainView, score, tickLength, false, snake);
-			router.go(Page.GameOver);
+
+	let locker: Locker;
+	let _appleSkin: AppleSkin;
+	let _snakeSkin: SnakeSkin;
+	let _fieldSkin: FieldSkin;
+	Promise.all([
+		new Promise<void>((resolve) => {
+			_appleSkin = new AppleSkinCheezburger(() => { resolve() });
+		}),
+		new Promise<void>((resolve) => {
+			_snakeSkin = new SnakeSkinNeocat(() => { resolve() });
+		}),
+		new Promise<void>((resolve) => {
+			// @ts-expect-error
+			_fieldSkin = undefined;
+			resolve();
+		}),
+	]).then(() => {
+		locker = {
+			apple: _appleSkin,
+			snake: _snakeSkin,
+			field: _fieldSkin
 		}
-	}));
+
+		if (webSnake != undefined) {
+			webSnake.state = WebSnakeState.Stopped;
+		}
+		webSnake = new WebSnake(document, mainView, score, tickLength, smoothingEnabled, locker, new Snake(boardSize, apples, (newState, snake) => {
+			if (newState != SnakeState.Running) {
+				webSnake.state = WebSnakeState.Stopped;
+				gameOverScore.innerText = snake.snake.length.toString();
+				gameOverMainView.style.aspectRatio = `${boardSize.x} / ${boardSize.y}`;
+				webSnake = new WebSnake(document, gameOverMainView, score, tickLength, false, locker, snake);
+				router.go(Page.GameOver);
+			}
+		}));
+	})
 }
 
 window.onload = main;

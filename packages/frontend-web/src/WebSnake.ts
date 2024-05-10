@@ -8,17 +8,19 @@ export enum WebSnakeState {
 	Running = 2
 }
 
+export interface Locker {
+	snake: SnakeSkin;
+	apple: AppleSkin;
+	field: FieldSkin;
+}
+
 export default class WebSnake {
 	state: WebSnakeState;
 	debugEnabled: boolean;
 	debug: string[];
 
 	smoothingEnabled: boolean;
-	skins: {
-		snake: SnakeSkin;
-		apple: AppleSkin;
-		field: FieldSkin;
-	}
+	skins: Locker;
 
 	game: Snake;
 	previousTickSnakeEnd: Vector2 | null; // for smooth snake
@@ -38,21 +40,16 @@ export default class WebSnake {
 
 	scoreElement: HTMLElement;
 
-	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement, tickLength: number, smoothingEnabled: boolean, snake: Snake) {
+	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement, tickLength: number, smoothingEnabled: boolean, locker: Locker, snake: Snake) {
 		this.state = WebSnakeState.Running;
 		this.debugEnabled = false;
 		this.debug = [];
 
 		this.smoothingEnabled = smoothingEnabled;
-		this.skins = {
-			snake: new SnakeSkinPrototype(),
-			apple: new AppleSkinPrototype(),
-			// @ts-expect-error // TODO
-			field: null
-		}
+		this.skins = locker;
 
 		this.game = snake;
-		this.previousTickSnakeEnd = this.game.snake[this.game.snake.length - 1];
+		this.previousTickSnakeEnd = this.game.snake[this.game.snake.length];
 		this.previousTickState = this.game.state;
 
 		this.minimumTickLength = tickLength;
@@ -214,13 +211,39 @@ export default class WebSnake {
 
 		// Snake body
 		this.game.snake.slice(1).forEach((snakePiece, index) => {
+			index += 1;
+
+			let prev: Vector2;
+			if (index > 0) prev = this.game.snake[index - 1];
+			else prev = snakePiece;
+			let prevDirection: Vector2 = {
+				x: prev.x - snakePiece.x,
+				y: prev.y - snakePiece.y
+			};
+
+			let next: Vector2;
+			if (index + 1 < this.game.snake.length) next = this.game.snake[index + 1];
+			else if (this.smoothingEnabled && this.previousTickSnakeEnd != null) next = this.previousTickSnakeEnd;
+			else next = snakePiece;
+			let nextDirection: Vector2 = {
+				x: next.x - snakePiece.x,
+				y: next.y - snakePiece.y
+			}
+
+			let direction: Vector2 = {
+				x: Math.abs(prevDirection.x) > Math.abs(nextDirection.x) ? prevDirection.x : nextDirection.x,
+				y: Math.abs(prevDirection.y) > Math.abs(nextDirection.y) ? prevDirection.y : nextDirection.y
+			};
+
+			//console.log(index + ':', prev, snakePiece, next, 'meow!', direction);
+
 			this.skins.snake.drawPiece(this.mainViewContext, this.mainViewTileSize,
 				{
 					x: this.mainViewOffset.x + snakePiece.x * this.mainViewTileSize,
 					y: this.mainViewOffset.y + snakePiece.y * this.mainViewTileSize
 				},
-				{ x: 0, y: 0 },
-				SnakePiece.Body
+				direction,
+				(index + 1) == this.game.snake.length && !this.smoothingEnabled ? SnakePiece.End : SnakePiece.Body
 			);
 		});
 		
@@ -229,7 +252,7 @@ export default class WebSnake {
 		const snakeHead = this.game.snake[0];
 
 		// Snake end
-		if (this.game.snake.length > 1 && this.previousTickSnakeEnd != undefined) {
+		if (this.smoothingEnabled && this.game.snake.length > 1 && this.previousTickSnakeEnd != undefined) {
 			const endVelocity: Vector2 = {
 				x: this.previousTickSnakeEnd.x - this.game.snake[this.game.snake.length - 1].x,
 				y: this.previousTickSnakeEnd.y - this.game.snake[this.game.snake.length - 1].y,
@@ -245,7 +268,7 @@ export default class WebSnake {
 					x: this.mainViewOffset.x + (this.previousTickSnakeEnd.x + endOffset.x) * this.mainViewTileSize,
 					y: this.mainViewOffset.y + (this.previousTickSnakeEnd.y + endOffset.y) * this.mainViewTileSize
 				},
-				endVelocity,
+				{ x: endVelocity.x * -1, y: endVelocity.y * -1 },
 				SnakePiece.End
 			);
 		}
@@ -261,7 +284,7 @@ export default class WebSnake {
 				x: this.mainViewOffset.x + (snakeHead.x + headOffset.x) * this.mainViewTileSize,
 				y: this.mainViewOffset.y + (snakeHead.y + headOffset.y) * this.mainViewTileSize
 			},
-			{ x: 0, y: 0 },
+			{ x: this.game.snakeVelocity.x * -1, y: this.game.snakeVelocity.y * -1 },
 			SnakePiece.Head
 		);
 
