@@ -222,7 +222,7 @@ export default class WebSnake {
 			};
 
 			let next: Vector2;
-			if (index + 1 < this.game.snake.length) next = this.game.snake[index + 1];
+			if (index < (this.game.snake.length - 1)) next = this.game.snake[index + 1];
 			else if (this.smoothingEnabled && this.previousTickSnakeEnd != null) next = this.previousTickSnakeEnd;
 			else next = snakePiece;
 			let nextDirection: Vector2 = {
@@ -243,7 +243,7 @@ export default class WebSnake {
 					y: this.mainViewOffset.y + snakePiece.y * this.mainViewTileSize
 				},
 				direction,
-				(index + 1) == this.game.snake.length && !this.smoothingEnabled ? SnakePiece.End : SnakePiece.Body
+				index == (this.game.snake.length - 1) && !this.smoothingEnabled ? SnakePiece.End : SnakePiece.Body
 			);
 		});
 		
@@ -253,7 +253,7 @@ export default class WebSnake {
 
 		// Snake end
 		if (this.smoothingEnabled && this.game.snake.length > 1 && this.previousTickSnakeEnd != undefined) {
-			const endVelocity: Vector2 = {
+			let endVelocity: Vector2 = {
 				x: this.previousTickSnakeEnd.x - this.game.snake[this.game.snake.length - 1].x,
 				y: this.previousTickSnakeEnd.y - this.game.snake[this.game.snake.length - 1].y,
 			};
@@ -263,6 +263,25 @@ export default class WebSnake {
 				y: endVelocity.y * (offset * -1)
 			};
 
+			// Specifically do this AFTER endOffset is set, because we only want this to affect the sprite we use, and not the actual velocity used for smoothing!
+			if (endVelocity.x == 0 && endVelocity.y == 0) {
+				endVelocity = {
+					x: this.game.snake[this.game.snake.length - 1].x - this.game.snake[this.game.snake.length - 2].x,
+					y: this.game.snake[this.game.snake.length - 1].y - this.game.snake[this.game.snake.length - 2].y,
+				}
+			}
+
+			// Make space for tail
+			let endX = this.mainViewOffset.x + (this.previousTickSnakeEnd.x + endOffset.x) * this.mainViewTileSize;
+			let endY = this.mainViewOffset.y + (this.previousTickSnakeEnd.y + endOffset.y) * this.mainViewTileSize;
+			this.mainViewContext.clearRect(
+				endOffset.x > 0 ? Math.floor(endX) : Math.ceil(endX),
+				endOffset.y > 0 ? Math.floor(endY) : Math.ceil(endY),
+				this.mainViewTileSize,
+				this.mainViewTileSize
+			);
+
+			// Draw tail
 			this.skins.snake.drawPiece(this.mainViewContext, this.mainViewTileSize,
 				{
 					x: this.mainViewOffset.x + (this.previousTickSnakeEnd.x + endOffset.x) * this.mainViewTileSize,
@@ -277,6 +296,18 @@ export default class WebSnake {
 		const headOffset: Vector2 = {
 			x: this.game.snakeVelocity.x * offset - this.game.snakeVelocity.x,
 			y: this.game.snakeVelocity.y * offset - this.game.snakeVelocity.y
+		}
+
+		if (this.smoothingEnabled) {
+			// Make space for head
+			let headX = this.mainViewOffset.x + (snakeHead.x + headOffset.x) * this.mainViewTileSize
+			let headY = this.mainViewOffset.y + (snakeHead.y + headOffset.y) * this.mainViewTileSize
+			this.mainViewContext.clearRect(
+				headOffset.x > 0 ? Math.floor(headX) : Math.ceil(headX),
+				headOffset.y > 0 ? Math.floor(headY) : Math.ceil(headY),
+				this.mainViewTileSize,
+				this.mainViewTileSize
+			);
 		}
 
 		this.skins.snake.drawPiece(this.mainViewContext, this.mainViewTileSize,
