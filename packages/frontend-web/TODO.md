@@ -1,5 +1,5 @@
 # To-do list
 
-- [ ] Smooth movement on Main View
-- [ ] Textures on Main View
-- [ ] UI/HUD
+- [x] Smooth movement on Main View
+- [x] Textures on Main View
+- [x] UI/HUD
