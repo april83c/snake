@@ -15,7 +15,7 @@
 	gap: var(--padding);
 }
 
-@media (max-width: 25rem) {
+@media (max-width: 30rem) {
 	.flex-col.mobile-flip {
 		flex-direction: row;
 	}

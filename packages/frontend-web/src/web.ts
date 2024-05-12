@@ -87,12 +87,14 @@ function main() {
 function startSnake(boardSize: Vector2, apples: number, tickLength: number, smoothingEnabled: boolean, skin: string) {
 	const mainView = document.querySelector('#page-game #mainView');
 	const score = document.querySelector('#page-game #score');
+	const clock = document.querySelector('#page-game #clock');
 	const gameOverScore = document.querySelector('#page-gameover #score');
 	const gameOverMainView = document.querySelector('#page-gameover #mainView');
 
 	if (!(
 		mainView instanceof HTMLCanvasElement
-		&& score instanceof HTMLElement
+		&& score instanceof HTMLSpanElement
+		&& clock instanceof HTMLSpanElement
 		&& gameOverScore instanceof HTMLSpanElement
 		&& gameOverMainView instanceof HTMLCanvasElement
 	)) throw new Error('Error getting elements for WebSnake');
@@ -117,12 +119,12 @@ function startSnake(boardSize: Vector2, apples: number, tickLength: number, smoo
 		if (webSnake != undefined) {
 			webSnake.state = WebSnakeState.Stopped;
 		}
-		webSnake = new WebSnake(document, mainView, score, tickLength, smoothingEnabled, locker, new Snake(boardSize, apples, (newState, snake) => {
+		webSnake = new WebSnake(document, mainView, score, clock, tickLength, smoothingEnabled, locker, new Snake(boardSize, apples, (newState, snake) => {
 			if (newState != SnakeState.Running) {
 				webSnake.state = WebSnakeState.Stopped;
 				gameOverScore.innerText = snake.snake.length.toString();
 				gameOverMainView.style.aspectRatio = `${boardSize.x} / ${boardSize.y}`;
-				webSnake = new WebSnake(document, gameOverMainView, score, tickLength, false, locker, snake);
+				webSnake = new WebSnake(document, gameOverMainView, score, clock, tickLength, false, locker, snake);
 				router.go(Page.GameOver);
 			}
 		}));

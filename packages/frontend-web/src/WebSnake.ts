@@ -37,9 +37,10 @@ export default class WebSnake {
 	mainViewFontSize: number;
 	mainViewOffset: Vector2;
 
-	scoreElement: HTMLElement;
+	scoreElement: HTMLSpanElement;
+	clockElement: HTMLSpanElement;
 
-	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLElement, tickLength: number, smoothingEnabled: boolean, locker: Locker, snake: Snake) {
+	constructor(doc: Document, mainView: HTMLCanvasElement, score: HTMLSpanElement, clock: HTMLSpanElement, tickLength: number, smoothingEnabled: boolean, locker: Locker, snake: Snake) {
 		this.state = WebSnakeState.Running;
 		this.debugEnabled = false;
 		this.debug = [];
@@ -152,6 +153,7 @@ export default class WebSnake {
 		doc.addEventListener('keydown', inputListener)
 
 		this.scoreElement = score;
+		this.clockElement = clock;
 
 		this.mainLoop(performance.now());
 	}
@@ -176,6 +178,7 @@ export default class WebSnake {
 					
 					// Text
 					this.scoreElement.innerText = this.game.snake.length.toString();
+					this.clockElement.innerText = new Date().toLocaleTimeString();
 				}
 
 				// Rendering
