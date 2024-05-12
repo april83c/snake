@@ -11,7 +11,6 @@ export enum WebSnakeState {
 export interface Locker {
 	snake: SnakeSkin;
 	apple: AppleSkin;
-	field: FieldSkin;
 }
 
 export default class WebSnake {

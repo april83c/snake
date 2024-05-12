@@ -1,6 +1,6 @@
 import Snake, { SnakeState, type Vector2 } from '@april83c/snake';
 import WebSnake, { WebSnakeState, type Locker } from './WebSnake';
-import { AppleSkinCheezburger, FieldSkin, SnakeSkin, SnakeSkinPrototype, type AppleSkin } from './Skin';
+import { AppleSkinCheezburger, AppleSkinPrototype, FieldSkin, SnakeSkin, SnakeSkinPrototype, type AppleSkin } from './Skin';
 import { SnakeSkinNeocat } from './Skin/snake/neocat';
 
 function notNull<desired>(v: desired | null) {
@@ -58,6 +58,7 @@ function main() {
 	const tickLengthInput = document.querySelector('#page-setup #tick-length');
 	const smoothingEnabledInput = document.querySelector('#page-setup #smoothing-enabled');
 	const startButton = document.querySelector('#page-setup #start');
+	const skinSelect = document.querySelector('#page-setup #skin');
 	if (!(
 		boardSizeXInput instanceof HTMLInputElement
 		&& boardSizeYInput instanceof HTMLInputElement
@@ -65,10 +66,11 @@ function main() {
 		&& tickLengthInput instanceof HTMLInputElement
 		&& smoothingEnabledInput instanceof HTMLInputElement
 		&& startButton instanceof HTMLButtonElement
+		&& skinSelect instanceof HTMLSelectElement
 	)) throw new Error('Error getting elements for setup');
 	startButton.addEventListener('click', () => {
 		router.go(Page.Game);
-		startSnake({ x: boardSizeXInput.valueAsNumber, y: boardSizeYInput.valueAsNumber }, applesInput.valueAsNumber, tickLengthInput.valueAsNumber, smoothingEnabledInput.checked);
+		startSnake({ x: boardSizeXInput.valueAsNumber, y: boardSizeYInput.valueAsNumber }, applesInput.valueAsNumber, tickLengthInput.valueAsNumber, smoothingEnabledInput.checked, skinSelect.value);
 	});
 
 	// Game over page
@@ -82,7 +84,7 @@ function main() {
 	router.go(Page.Setup);
 }
 
-function startSnake(boardSize: Vector2, apples: number, tickLength: number, smoothingEnabled: boolean) {
+function startSnake(boardSize: Vector2, apples: number, tickLength: number, smoothingEnabled: boolean, skin: string) {
 	const mainView = document.querySelector('#page-game #mainView');
 	const score = document.querySelector('#page-game #score');
 	const gameOverScore = document.querySelector('#page-gameover #score');
@@ -101,21 +103,15 @@ function startSnake(boardSize: Vector2, apples: number, tickLength: number, smoo
 	let _fieldSkin: FieldSkin;
 	Promise.all([
 		new Promise<void>((resolve) => {
-			_appleSkin = new AppleSkinCheezburger(() => { resolve() });
+			_appleSkin = skin == 'kitty' ? new AppleSkinCheezburger(() => { resolve() }) : new AppleSkinPrototype(() => { resolve() });
 		}),
 		new Promise<void>((resolve) => {
-			_snakeSkin = new SnakeSkinNeocat(() => { resolve() });
-		}),
-		new Promise<void>((resolve) => {
-			// @ts-expect-error
-			_fieldSkin = undefined;
-			resolve();
-		}),
+			_snakeSkin = skin == 'kitty' ? new SnakeSkinNeocat(() => { resolve() }) : new SnakeSkinPrototype(() => { resolve() });
+		})
 	]).then(() => {
 		locker = {
 			apple: _appleSkin,
-			snake: _snakeSkin,
-			field: _fieldSkin
+			snake: _snakeSkin
 		}
 
 		if (webSnake != undefined) {
